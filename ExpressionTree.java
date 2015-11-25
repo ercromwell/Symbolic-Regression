@@ -1,4 +1,4 @@
-
+import java.util.*;
 
 // Representation of mathematical expression in binary tree form
 public class ExpressionTree
@@ -148,6 +148,10 @@ public class ExpressionTree
     private Node root;
 
     //Constructors
+    public ExpressionTree()
+    {
+	root = new Node(0);
+    }
 
     //Build random mathematical expression, depth 3 or 4
     //choose random value for node, perhaps choice based on current tree depth
@@ -156,64 +160,108 @@ public class ExpressionTree
     //if binary operator, create new expression for left and right subtree depth -1
 
     //if unary operator, create new expressions for left subtree, depth -1;
-
+    
+    public ExpressionTree(int maxDepth)
+    {
+	root = new Node(0);
+    }
 
     
     //Build tree based on list of operations, post-order
     //E.g, 9 + 7*a - 6 = 9 7 a * + 6 - 
-    public ExpressionTree(String postOrder)
+    public ExpressionTree(String list) 
     {
-	String[] list = postOrder.split(" ");
-
-	root = listHelper(list);
+	try
+	{
+	    root = listHelper(list);
+	}
+	catch(Exception e)
+	{
+	    e.printStackTrace();
+	    System.exit(-1);
+        }
     }
 
-    //
-    private Node listHelper(String[] postOrder)
+    //Make thrown exception more descriptive
+    private Node listHelper(String list) throws Exception
     {
-
+	String[] postOrder = list.split(" ");
+	
 	Deque<Node> stack = new LinkedList<Node>();
 
-	for(int i = 0; i < postOrder.size(); ++i)
+	for(int i = 0; i < postOrder.length; ++i)
 	{
-	   
-	    //if binary operator
-	    if( postOrder[i]  )
+	    String symbol = postOrder[i];
+	    Node n;
+
+	    //binary operator
+	    if( isBinaryOp(symbol)  )
 	    {
-		//pop of first two nodes from stack, construct new node w/ approp value
-		//two nodes as its children
-		//add node to stack
-
-		Node right = stack.pop();
-		Node left = stack.pop();
-
-		//apropriate binary operator
-		    
+		Node right;
+		if( stack.peek() == null )
+		    throw new IllegalArgumentException("Invalid post-order list: "
+						       + list);
+		right = stack.pop();
 		
+		Node left;
+	      	if( stack.peek() == null )
+		    throw new IllegalArgumentException("Invalid post-order list: "
+						       + list);
+		left = stack.pop();
+		n = new Node(getBinaryOp(symbol), left, right);
 	    }
 	    //unary operator
-	    else if( )
+	    else if( isUnaryOp(symbol) )
 	    {
-		//pop of node from stack , make it left child of new node
-		//add node to stack
-		Node child = stack.pop();
+		Node child;
+	       	if( stack.peek() == null )
+		    throw new IllegalArgumentException("Invalid post-order list: "
+					+ list);
+	        child = stack.pop();
+		n = new Node(getUnaryOp(symbol), child);
 	    }
 	    //variable
-	    else if( )
+	    else if( isVariable(symbol) )
 	    {
-		//make new node, add to stack
+		int var = (int)symbol.charAt(0) - 97;
+		n = new Node(var, true);
 	    }
 	    //integer constant
 	    else
-		stack.push( new Node( Integer.parseInt( postOrder[i] ) ) );
+		n = new Node( Integer.parseInt(symbol) );
 	    
-	    
+	    stack.push(n);
         }
 
 	//if stack is not empty, throw exception
+	if( stack.peek() == null )
+	    throw new IllegalArgumentException("Invalid post-order list: "
+					       + list );	
+	return stack.pop();
     }
 
-    private static int binaryOperator(String op)
+    //Whether str is a binary operator symbol
+    private static boolean isBinaryOp(String str)
+    {
+	return str.equals("+") || str.equals("-") || str.equals("*")
+	    || str.equals("/") || str.equals("^") ;
+    }
+
+    //Whethere str is a unary operator symbol
+    private static  boolean isUnaryOp(String str)
+    {
+	return str.equals("cos") || str.equals("sin") || str.equals("tan");
+    }
+
+    //Whethere str is a variable symbol ("a"-"z")
+    private static  boolean isVariable(String str)
+    {
+	return str.compareTo("a") >= 0 && str.compareTo("z") <= 0 ;
+    }
+
+
+     //Analogous integer for given binary operator "op"
+    private static int getBinaryOp(String op)
     {
          int v = 0;
 	 if( op.equals("-") )
@@ -232,7 +280,8 @@ public class ExpressionTree
 	 return v;
     }
 
-    private static int unaryOperator(String op)
+    //Analogous integer for given unary operator "op"
+    private static int getUnaryOp(String op)
     {
          int v = 0;
 	 if( op.equals("cos") )
@@ -246,10 +295,11 @@ public class ExpressionTree
 
 	 return v;
     }
-       
     
     
     //Evaluation function with given input array for variables
+    //If illegal operation, returns Double.MAX_VALUE
+    //Need to deal w/inproper input
     public double evaluate(double[] input)
     {
     	if(root == null)
@@ -263,13 +313,14 @@ public class ExpressionTree
     }
 
     //Post-order evaluation of expression tree
-    //If illegal operation, immediately terminate tree and returns Double.MAX_VALUE
-    private double evalHelper(Node n, double[] input)
+    //If illegal operation, returns Double.MAX_VALUE
+    private double evalHelper(Node n, double[] input) 
     {
     	// variable
     	if(n.isVariable())
+        {
     	    return input[n.value];
-
+	}
 	//integer constant
     	else if( n.isInteger() )
 	    return n.value;
@@ -301,11 +352,11 @@ public class ExpressionTree
         }
     }
 
+    //Perform binary operation 'left' op 'right
     //For illegal operations, return Double.MAX_VALUE
-    //Include print statement for where error is?
     private double binaryOp(int op, double left, double right)
     {
-	double result = 0;
+	double result;
 	
 	switch (op)
 	{
@@ -333,7 +384,7 @@ public class ExpressionTree
 	    //power
 	    case 4:
 		//raise negative number to fractional value
-		if( left < 0 && ( right % 1 ) < 1 )
+		if( left < 0 &&  (right % 1) > 0 && ( right % 1 ) < 1 )
 		     result = Double.MAX_VALUE;
 	        // raise 0 to negative power, equivalent to divide by 0
 		else if (left == 0 && right < 0 )
@@ -343,6 +394,7 @@ public class ExpressionTree
 		break;
 	    //Invalid operator, throw exception
 	    default: System.out.println("invalid operator");
+		result = Double.MAX_VALUE;
 		break;
 	}
 	return result;
@@ -350,7 +402,7 @@ public class ExpressionTree
 
     private double unaryOp(int op, double val)
     {
-      	double result = 0;
+      	double result = Double.MAX_VALUE;
 	
 	switch (op)
 	{
@@ -373,8 +425,17 @@ public class ExpressionTree
 	return result;
     }
 
+    //TO INCUDE: floating point equivalnce for 0 using rel/abs error
+    public boolean isZero(double d)
+    {
+	return true;
+    }
+
     public String toString()
     {
+	if(root == null)
+	    return "";
+	
 	StringBuilder sb = new StringBuilder();
 	stringHelper(root, sb);
 	return sb.toString();
@@ -431,11 +492,7 @@ public class ExpressionTree
     //Whether parent node has higher order operator than child node
     private static boolean higherOrder(Node parent, Node child)
     {
-	//child Node is operator node
-	if( child.isBinaryOp() )
-	    return child.value < parent.value;
-	else
-	    return false;
+	return child.isBinaryOp() && child.value < parent.value;
     }
 
 
