@@ -146,6 +146,12 @@ public class ExpressionTree
 
     //Variable
     private Node root;
+    
+    private static final double MAKE_VAR = 0.50; //Percent  create variable
+    private static final double MAKE_BI = 1; //Percent create binary operator	
+    private static final int NUM_BI = 5; //Number of binary operators
+    private static final int NUM_UNARY = 3; //Number of unary operators	
+
 
     //Constructors
     public ExpressionTree()
@@ -153,17 +159,51 @@ public class ExpressionTree
 	root = new Node(0);
     }
 
-    //Build random mathematical expression, depth 3 or 4
-    //choose random value for node, perhaps choice based on current tree depth
-    //if integer constant or variable, stop, base case
-
-    //if binary operator, create new expression for left and right subtree depth -1
-
-    //if unary operator, create new expressions for left subtree, depth -1;
-    
-    public ExpressionTree(int maxDepth)
+    //Random mathematical expression 
+    public ExpressionTree(int maxDepth, int numVars)
     {
-	root = new Node(0);
+	root = randomGen(maxDepth, numVars);
+    }
+ 
+    private Node randomGen(int depth, int numVars)
+    {
+        double choice = Math.random();
+
+	//Base Case
+	if(depth <= 0)
+	{
+	    //Variable
+	    if( choice < MAKE_VAR)
+		return  new Node( (int)( Math.random()*numVars ) , true);
+
+	    //Integer constant between -10 and 10, inclusive. Excludes 0
+	    else
+	    {
+		int sign =  (int) Math.pow(-1, (int)( Math.random()*2 ) );		
+	        int constant = ((int)( Math.random() * 10) + 1) * sign ;		  
+		
+		return new Node(constant);
+	    }
+	    
+        }
+      	//Recursive Case
+	else
+	{
+	    int nextDepth = depth - 1 - (int)(Math.random()*2);
+	    Node left = randomGen( nextDepth, numVars);
+	    
+	    //Binary operator
+	    if(choice < MAKE_BI)
+	    {
+		nextDepth = depth - 1 - (int)(Math.random()*2);
+		Node right = randomGen( nextDepth, numVars);
+		
+		return new Node( (int)( Math.random()*NUM_BI ), left, right );
+	    }
+	    //Unary operator
+	    else
+		return new Node( (int)( Math.random()*NUM_UNARY), left) ;  
+        }	
     }
 
     
@@ -299,7 +339,7 @@ public class ExpressionTree
     
     //Evaluation function with given input array for variables
     //If illegal operation, returns Double.MAX_VALUE
-    //Need to deal w/inproper input
+    //************Need to deal w/inproper input***********************
     public double evaluate(double[] input)
     {
     	if(root == null)
@@ -325,31 +365,28 @@ public class ExpressionTree
     	else if( n.isInteger() )
 	    return n.value;
 
-    	//Binary operation
-    	else if(n.isBinaryOp() )
+    	else 
     	{
 	    double leftVal = evalHelper(n.left, input);
 
 	    if(leftVal == Double.MAX_VALUE )
 		return leftVal;
-	    
-	    double rightVal = evalHelper(n.right, input);
 
-	    if(rightVal == Double.MAX_VALUE )
-		return rightVal;
+	    //Binary operation
+	    if( n.isBinaryOp() )
+	    {
+		double rightVal = evalHelper(n.right, input);
 
-	    return binaryOp(n.value, leftVal, rightVal);
+		if(rightVal == Double.MAX_VALUE )
+		    return rightVal;
+
+		return binaryOp(n.value, leftVal, rightVal);
+	    }
+	    //Unary operation
+	    else
+		return unaryOp(n.value, leftVal); 
     	}
-    	//Unary operation
-    	else
-	{
-	    double leftVal = evalHelper(n.left, input);
 
-	    if(leftVal == Double.MAX_VALUE )
-		return leftVal;
-	    
-	    return unaryOp(n.value, leftVal); 
-        }
     }
 
     //Perform binary operation 'left' op 'right
@@ -425,7 +462,7 @@ public class ExpressionTree
 	return result;
     }
 
-    //TO INCUDE: floating point equivalnce for 0 using rel/abs error
+    //TO INCUDE LATER: floating point equivalnce for 0 using rel/abs error
     public boolean isZero(double d)
     {
 	return true;
