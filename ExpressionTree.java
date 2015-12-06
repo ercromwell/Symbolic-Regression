@@ -16,8 +16,6 @@ public class ExpressionTree
       or if makes no difference
 
     */
-
-    
     private class Node
     {
 	public int value;
@@ -299,7 +297,6 @@ public class ExpressionTree
 	return str.compareTo("a") >= 0 && str.compareTo("z") <= 0 ;
     }
 
-
      //Analogous integer for given binary operator "op"
     private static int getBinaryOp(String op)
     {
@@ -532,5 +529,88 @@ public class ExpressionTree
 	return child.isBinaryOp() && child.value < parent.value;
     }
 
+    public ExpressionTree clone()
+    {
+	copy = new ExpressionTree();
+	copy.root = copyHelper(root);
+	
+	return copy;
+    }
+
+    private Node cloneHelper(Node root)
+    {
+	if(root == null)
+	    return null;
+	else
+	{
+	    //copy left subtree
+	    Node left = null;
+	    if(root.left != null)
+		left = cloneHelper(root.left);
+
+	    //copy right subtree
+	    Node right = null;
+	    if(root.right != null)
+		right = cloneHelper(root.right);
+
+	    return new Node(root.value, left, right, root.variable);
+	}
+    }
+
+    public void crossover(ExpressionTree other)
+    {
+       //select subtree for expression one
+
+
+       //select subtree for expression two
+
+
+       //swap subtrees
+    }
+
+    //"Randomly" select subtree to use for crossover
+
+    //could return series of moves to get subtree
+    //return parent and indicator if it is left or right subtree
+    //or just return parent and then randomly choose whether to
+    //use left or right subtree
+
+    //be sure to not return a leaf node
+    
+    private Node selectSubTree()
+    {
+	/*
+	if(root == null)
+	    return null;
+	else if(root.left == null && root.right == null)
+	*/
+
+
+	//return subtree if parent of leaf node
+
+	//return subtree if decide to stop
+
+	//otherwise, randomly choose to go left or right (or just left if
+	//unary operation
+
+	Node prev = null;
+	Node current = this.root;
+
+	while( something i need to consider)
+	{
+	    
+	    
+
+
+	    
+	}
+
+	
+	    
+	
+    }
+	 
 
 }
+
+  
