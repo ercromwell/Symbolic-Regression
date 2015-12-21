@@ -334,7 +334,7 @@ public class ExpressionTree
     }
     
     
-    //Evaluation function with given input array for variables
+    //post: Evaluation function with given input array for variables
     //If illegal operation, returns Double.MAX_VALUE
     //************Need to deal w/inproper input***********************
     public double evaluate(double[] input)
@@ -386,7 +386,7 @@ public class ExpressionTree
 
     }
 
-    //Perform binary operation 'left' op 'right
+    //post: Perform binary operation 'left' op 'right
     //For illegal operations, return Double.MAX_VALUE
     private double binaryOp(int op, double left, double right)
     {
@@ -434,6 +434,8 @@ public class ExpressionTree
 	return result;
     }
 
+    //post: Perform unary operation 'left'( op )
+    //For illegal operations, return Double.MAX_VALUE
     private double unaryOp(int op, double val)
     {
       	double result = Double.MAX_VALUE;
@@ -465,6 +467,7 @@ public class ExpressionTree
 	return true;
     }
 
+    //post: The string form of the expression tree
     public String toString()
     {
 	if(root == null)
@@ -523,16 +526,17 @@ public class ExpressionTree
     
     }
 
-    //Whether parent node has higher order operator than child node
+    //post: Whether parent node has higher order operator than child node
     private static boolean higherOrder(Node parent, Node child)
     {
 	return child.isBinaryOp() && child.value < parent.value;
     }
 
+    //post: Returns a copy of the expression tree
     public ExpressionTree clone()
     {
-	copy = new ExpressionTree();
-	copy.root = copyHelper(root);
+	ExpressionTree copy = new ExpressionTree();
+	copy.root = cloneHelper(root);
 	
 	return copy;
     }
@@ -557,60 +561,80 @@ public class ExpressionTree
 	}
     }
 
-    public void crossover(ExpressionTree other)
+    public void Crossover(ExpressionTree other)
     {
-       //select subtree for expression one
+	//point of crossover for expression one
+       	double STOP = 0.7;
+	    
+	Node subtreeOne = this.root;
+	boolean isLeftOne = true;
 
+	while(subtreeOne.left!= null && subtreeOne.right!=null)
+	{
+	    if( subtreeOne.isBinaryOp() && Math.random() <= 0.5)
+		isLeftOne = false;
+	    else
+		isLeftOne = true;
 
-       //select subtree for expression two
+	    //Stop searching for subtree
+	    if( Math.random() <= STOP )
+		break;
 
+	    if(isLeftOne)
+		subtreeOne = subtreeOne.left;
+	    else
+		subtreeOne = subtreeOne.right;
+        }
 
-       //swap subtrees
-    }
+       	//point of crossover for expression two
+       	Node subtreeTwo = other.root;
+	boolean isLeftTwo = true;
 
-    //"Randomly" select subtree to use for crossover
-
-    //could return series of moves to get subtree
-    //return parent and indicator if it is left or right subtree
-    //or just return parent and then randomly choose whether to
-    //use left or right subtree
-
-    //be sure to not return a leaf node
-    
-    private Node selectSubTree()
-    {
-	/*
-	if(root == null)
-	    return null;
-	else if(root.left == null && root.right == null)
-	*/
-
-
-	//return subtree if parent of leaf node
-
-	//return subtree if decide to stop
-
-	//otherwise, randomly choose to go left or right (or just left if
-	//unary operation
-
-	Node prev = null;
-	Node current = this.root;
-
-	while( something i need to consider)
+	while(subtreeTwo.left!= null && subtreeTwo.right!=null)
 	{
 	    
-	    
+	    if( subtreeTwo.isBinaryOp() && Math.random() <= 0.5)
+		isLeftTwo = false;
+	    else
+		isLeftTwo = true;   
 
+	    //Stop searching for subtree
+	    if( Math.random() <= STOP )
+		break;
 
-	    
-	}
+	    if(isLeftTwo)
+		subtreeTwo = subtreeTwo.left;
+	    else
+		subtreeTwo = subtreeTwo.right;
 
-	
-	    
-	
+        }
+
+	//Swap subtrees
+	if( isLeftOne && isLeftTwo)
+	{
+	    Node temp = subtreeOne.left;
+	    subtreeOne.left = subtreeTwo.left;
+	    subtreeTwo.left = temp;
+        }
+	else if( !isLeftOne && isLeftTwo )
+	{
+	    Node temp = subtreeOne.right;
+	    subtreeOne.right = subtreeTwo.left;
+	    subtreeTwo.left = temp;   
+        }
+	else if( isLeftOne && !isLeftTwo )
+	{
+	    Node temp = subtreeOne.left;
+	    subtreeOne.left = subtreeTwo.right;
+	    subtreeTwo.right = temp;
+        }
+	else
+        {
+      	    Node temp = subtreeOne.right;
+	    subtreeOne.right = subtreeTwo.right;
+	    subtreeTwo.right = temp;
+        }
     }
-	 
-
 }
 
   

@@ -1,4 +1,4 @@
-
+import java.util.*;
 
 public class GeneticAlgorithm
 {
@@ -39,7 +39,7 @@ public class GeneticAlgorithm
 	    fitness[t] = sum;
         }
 
-	return fitness
+	return fitness;
     }
 
     public static int existsSolution(double[] fitness, double epsilon)
@@ -55,17 +55,13 @@ public class GeneticAlgorithm
 	    }
         }
 	    
-	return solution
+	return solution;
     }
 
     //post: Crossover performed on expressions one and two
     public static void crossover(ExpressionTree one, ExpressionTree two)
     {
-	//point of crossover for expression one
-
-
-	//point of crossover for expression two
-	
+	one.Crossover(two);
     }
 
      
